@@ -1,0 +1,122 @@
+---
+title: "Homework 1: Exploring the Diamonds Dataset "
+subtitle: "Advanced Data Programming with R"
+author: "Roshini Gopinath"
+format:
+  html:
+    fontsize: 1.0em
+    embed-resources: true
+    grid:
+      body-width: 800px
+  revealjs: 
+    slide-number: true
+    html-math-method: mathjax
+    theme: serif
+execute: 
+  eval: true
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(knitr)
+library(tidyr)
+library(ggplot2)
+data(diamonds)
+library(GGally)
+```
+
+# Introduction
+
+The diamonds dataset from the **ggplot2** package. The dataset contains **53,940 observations** of individual diamonds, each described by 10 features .It holds stuff like how heavy they are (carat), how well they’re cut, their color, clarity, and of course, their price.
+
+For this quick analysis, I wanted to see how diamond **`price`** changes with **`carat size`**, and how that relationship shifts depending on the **`cut quality`**. Basically: do better cut diamonds get priced higher even if they’re the same size? Let’s find out.
+
+# Descriptive Statistics for Numeric Features in the Diamonds Dataset
+
+```{r}
+# Create a descriptive statistics table for selected numeric variables
+numeric_summary <- diamonds %>%
+  
+   # Select only numeric columns of interest
+  select(carat, depth, table, price, x, y, z) %>%
+  
+   # Compute summary statistics: Min, Max, Mean, and Standard Deviation
+  summarise_all(list(
+    Min = ~min(.),
+    Max = ~max(.),
+    Mean = ~round(mean(.), 2),
+    SD = ~round(sd(.), 2)
+  )) %>%
+  pivot_longer(cols = everything(), names_to = c("Variable", ".value"), names_sep = "_")
+
+# Display table
+kable(numeric_summary, caption = "Descriptive Statistics for Numeric Features in the Diamonds Dataset")
+
+```
+
+-   **Carat** values range from **0.2 to 5.01**, with an average just under **1 carat** . So most diamonds are fairly small.
+
+-   **Price** spans a massive range, from **\$326 to over \$18,000**, with a high standard deviation, showing a lot of variation.
+
+-   The **depth** and **table** percentages are pretty consistent across the dataset, with small standard deviations, but still important in determining cut quality.
+
+-   Dimensions (`x`, `y`, `z`) generally center around **5–6 mm**, though the presence of **zeros** may indicate missing or misrecorded values that should be cleaned if modeling.
+
+# Pairwise Scatterplot Matrix
+
+```{r}
+
+# Sampling a smaller subset of the dataset(because full dataset is huge)
+diamonds_small <- diamonds[sample(nrow(diamonds), 500), ]
+
+# Selecting only the numeric variables for the matrix plot
+numeric_vars <- diamonds_small[, c("carat", "depth", "table", "price", "x", "y", "z")]
+
+# Generate a pairwise scatterplot matrix of selected numeric features
+ggpairs(numeric_vars,
+        title = "Pairwise Scatterplot Matrix of Diamond Features")
+
+
+```
+
+## Observations
+
+This pairwise scatterplot matrix gives a full view of how the diamond’s physical characteristics relate to one another and to price.
+
+-   **Carat** stands out with a strong positive correlation with **price**, as expected ,heavier diamonds cost more.There's a clear link between **carat** and the physical dimensions (x, y, z), since bigger stones take up more space.
+
+-   Variables like **depth** and **table** don’t show strong correlations with price ,their impact seems more subtle.
+
+# **Scatter Plot of Diamond Price vs Carat Size**
+
+```{r}
+# Set seed for reproducibility 
+set.seed(123)
+# Randomly sample 500 diamonds from the full dataset to improve plotting performance
+diamonds_small <- diamonds[sample(nrow(diamonds), 500), ]
+
+# Create a scatter plot of Price vs Carat, coloured by Cut
+ggplot(diamonds_small, aes(x = carat, y = price, color = cut)) +
+  geom_point(alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Diamond Price vs Carat Size",
+       subtitle = "Coloured by Cut Quality",
+       x = "Carat",
+       y = "Price ($)")
+```
+
+## Observations
+
+-   **Fair** diamonds tend to appear at higher carat sizes, which likely explains their high average price despite being the lowest cut quality.
+
+-   **Good** and **Very Good** cuts are spread across mid-range carat and price values, showing a balance between size and quality.
+
+-   **Premium** cuts show up across a wide range of carat sizes and consistently command solid prices.
+
+-   **Ideal** cuts dominate the lower carat range but still often reach high price points, proving that excellent cut quality increases value even in smaller stones.
+
+    In summary: **Carat influences the base price**, but **cut quality drives the final value**, introducing significant price differences among diamonds of similar size.
