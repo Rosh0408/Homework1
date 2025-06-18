@@ -35,7 +35,7 @@ The diamonds dataset from the **ggplot2** package. The dataset contains **53,940
 
 For this quick analysis, I wanted to see how diamond **`price`** changes with **`carat size`**, and how that relationship shifts depending on the **`cut quality`**. Basically: do better cut diamonds get priced higher even if they’re the same size? Let’s find out.
 
-# Descriptive Statistics for Numeric Features in the Diamonds Dataset
+# *Descriptive Statistics for Numeric Features in the Diamonds Dataset*
 
 ```{r}
 # Create a descriptive statistics table for selected numeric variables
