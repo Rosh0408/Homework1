@@ -1,5 +1,5 @@
 ---
-title: "Homework 1: Exploring the Diamonds Dataset "
+title: "Homework 1"
 subtitle: "Advanced Data Programming with R"
 author: "Roshini Gopinath"
 format:
